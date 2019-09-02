@@ -57,7 +57,7 @@ function u = PDHG(u0,r, alpha, lambda, c, inner_iter, tau, sigma)
         % stop conditions
         relerr = norm(u_old - u)/max([norm(u_old), norm(u), eps]);
         
-        if relerr < 1e-4 && i > 2
+        if relerr < 1e-6 && i > 2
             fprintf('Number of iterations completed: %d \n \n', i);
             break;
         end

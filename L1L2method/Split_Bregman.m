@@ -69,7 +69,7 @@ function u = Split_Bregman(u0,r, alpha, lambda, c, inner_iter, beta)
         % stop conditions
         relerr = norm(uold - u)/max([norm(uold), norm(u), eps]);
         
-        if relerr < 1e-4 && i > 2
+        if relerr < 1e-6 && i > 2
             fprintf('Number of iterations completed: %d \n \n', i);
             break;
         end
