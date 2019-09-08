@@ -10,12 +10,12 @@ pm.c1 = 0.1;
 pm.c2 = 0.75;
 pm.outer_iter = 20;
 pm.alpha = 0.1;
-pm.lambda = 5;
+pm.lambda = 10;
 pm.c = 1e-4;
 pm.inner_iter = 300;
-pm.beta = 100;
-pm.tau = 1/6;
-pm.sigma = 1/6;
+pm.beta = 50;
+pm.tau = 1/8;
+pm.sigma = 1/8;
 pm.method = 'PDHG';
 
 %u = make_circle(M,N,10);

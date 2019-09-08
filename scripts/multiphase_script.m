@@ -1,4 +1,4 @@
-fui8 = imread('mri.tif');
+fui8 = imread('mri2.jpg');
 f = double(fui8);
 [N,M] = size(f);
 fnoise = add_noise2(f,0);
@@ -6,19 +6,19 @@ fg = double(fnoise);
 fg = rescale_image(fg);
 
 
-pm.c1 = 0.1;
-pm.c2 = 0.25;
-pm.c3 = 0.5;
-pm.c4 = 0.75;
-pm.outer_iter = 20;
+pm.c1 = 0.4;
+pm.c2 = 0.8;
+pm.c3 = 0.9;
+pm.c4 = 0.;
+pm.outer_iter = 5;
 pm.alpha = 0.1;
 pm.lambda = 100;
 pm.c = 1e-4;
 pm.inner_iter = 300;
-pm.beta = 10;
+pm.beta = 50;
 pm.tau = 1/6;
 pm.sigma = 1/6;
-pm.method = 'Split Bregman';
+pm.method = 'PDHG';
 
 u1 = make_circle_shift_x(M,N,10, -5);
 u2 = make_circle_shift_x(M,N,10, 5);
