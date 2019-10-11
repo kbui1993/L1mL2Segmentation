@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function performs grayscale four phase segmentation with L1-alpha*L2 
+%This function performs grayscale four phase segmentation with isotropic 
 %TV.
 %Input:
 %   f: image
@@ -11,7 +11,7 @@
 %   u1: segmentation result of u1
 %   u2: segmentation result of u2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [u1,u2] = L1L2_four_phase(f,u1_initial, u2_initial, pm)
+function [u1,u2] = isoTV_four_phase(f,u1_initial, u2_initial, pm)
     
     %initialize u1 and u2
     u1 = u1_initial;
@@ -42,13 +42,7 @@ function [u1,u2] = L1L2_four_phase(f,u1_initial, u2_initial, pm)
             end
             
             %u update
-            if strcmp(pm.method, 'PDHG')
-                u = PDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-            elseif strcmp(pm.method, 'aPDHG')
-                u = aPDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-            else
-                u = Split_Bregman(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.beta);
-            end
+            u = isoPDHG(u, r, pm.lambda, pm.inner_iter, pm.tau, pm.sigma);
             if j == 1
                 u1 = u;
             else

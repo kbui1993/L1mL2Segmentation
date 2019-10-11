@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function performs grayscale two phase segmentation using L1-alpha* L2
+%This function performs grayscale two phase segmentation using isotropic
 %TV.
 %Input:
 %   f: image
@@ -9,7 +9,7 @@
 %Output:
 %   u: segmentation result
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function u = L1L2_two_phase(f,u_initial, pm)
+function u = isoTV_two_phase(f,u_initial, pm)
 
     %set u
     u = u_initial;
@@ -25,13 +25,7 @@ function u = L1L2_two_phase(f,u_initial, pm)
     %run DCA algorithm
     for i = 1:pm.outer_iter
         u_old = u;
-        if strcmp(pm.method, 'PDHG')
-            u = PDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-        elseif strcmp(pm.method, 'aPDHG')
-            u = aPDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-        else
-            u = Split_Bregman(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.beta);
-        end
+        u = isoPDHG(u, r, pm.lambda, pm.inner_iter, pm.tau, pm.sigma);
         
         %update c1 and c2
         error = 10^(-5)*eye(size(u));

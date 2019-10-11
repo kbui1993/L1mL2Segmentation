@@ -1,16 +1,19 @@
-fui8 = imread('flower.jpg');
+fui8 = imread('color_shape.jpg');
 f = double(fui8);
 [N,M,~] = size(f);
+f(:,:,1) = add_noise2(f(:,:,1), 0.2);
+f(:,:,2) = add_noise2(f(:,:,2), 0.2);
+f(:,:,3) = add_noise2(f(:,:,3), 0.2);
 fg = rescale_color_image(f);
+fg = double(fg);
 
 pm.outer_iter = 20;
 pm.alpha = 0.1;
-pm.lambda = 100;
-pm.c = 1e-4;
+pm.lambda = 10;
+pm.c = 1e-8;
 pm.inner_iter = 300;
-pm.beta = 50;
-pm.tau = 1/4;
-pm.sigma = 1/4;
+pm.tau = 1/8;
+pm.sigma = 1/8;
 pm.method = 'PDHG';
 
 u1 = make_circle_shift_x(M,N,10, -5);
@@ -26,6 +29,7 @@ u2 = double(u2);
 
 tic;
 [U1, U2] = L1L2_color_four_phase(fg, u1, u2, pm);
+%[U1, U2] = isoTV_color_four_phase(fg, u1, u2, pm);
 time = toc
 
 a1 = double(U1>0.5).*double(U2>0.5);
@@ -52,7 +56,7 @@ fg4(:,:,1) = fg4(:,:,1).*a4;
 fg4(:,:,2) = fg4(:,:,2).*a4;
 fg4(:,:,3) = fg4(:,:,3).*a4;
 figure;
-subplot(2,3,1); imagesc(fg); axis off; axis square; colormap gray; title('Original');
+subplot(2,3,1); imagesc(fg); axis off; axis square; title('Original');
 subplot(2,3,2); imagesc(fg1); axis off; axis square; title('Phase 1');
 subplot(2,3,3); imagesc(fg2); axis off; axis square; title('Phase 2');
 subplot(2,3,5); imagesc(fg3); axis off; axis square; title('Phase 3');

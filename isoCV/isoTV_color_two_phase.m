@@ -1,5 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function performs color two phase segmentation with L1-alpha*L2 TV
+%This function performs color two phase segmentation using isotropic
+%TV.
 %Input:
 %   f: image
 %   u_initial: initialization
@@ -8,13 +9,14 @@
 %Output:
 %   u: segmentation result
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function u = L1L2_color_two_phase(f,u_initial, pm)
+function u = isoTV_color_two_phase(f,u_initial, pm)
+    
     %separate the channels of f
     f_r = f(:,:,1);
     f_g = f(:,:,2);
     f_b = f(:,:,3);
     
-    %preinitialize u
+    %set u
     u = u_initial;
     
     %compute c1 and c2
@@ -28,20 +30,10 @@ function u = L1L2_color_two_phase(f,u_initial, pm)
     r_b = (c1(3)-f_b).^2 - (c2(3)-f_b).^2;
     r = r_r+r_g+r_b;
     
-    %run segmentation algorithm
+    %run DCA algorithm
     for i = 1:pm.outer_iter
-        
-        %store old u
         u_old = u;
-        
-        %u update
-        if strcmp(pm.method, 'PDHG')
-            u = PDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-        elseif strcmp(pm.method, 'aPDHG')
-            u = aPDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-        else
-            u = Split_Bregman(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.beta);
-        end
+        u = isoPDHG(u, r, pm.lambda, pm.inner_iter, pm.tau, pm.sigma);
         
         %update c
         c1=[sum(f_r(:).*u(:))./sum(u(:)+error(:)); sum(f_g(:).*u(:))./sum(u(:)+error(:)); sum(f_b(:).*u(:))./sum(u(:)+error(:))];
