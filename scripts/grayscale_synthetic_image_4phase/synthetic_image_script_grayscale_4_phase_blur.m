@@ -7,7 +7,7 @@ synthetic_image;
 f = M;
 
 %blur the image
-fblur = imgaussfilt(f,0.25);
+fblur = imgaussfilt(f,0.75);
 fg = rescale_image(fblur);
 
 %get image size
@@ -16,7 +16,7 @@ fg = rescale_image(fblur);
 %set parameters
 pm.outer_iter = 20;
 pm.alpha = 1.0;
-pm.lambda =80;
+pm.lambda =750;
 pm.c = 1e-8;
 pm.inner_iter = 300;
 pm.tau = 1/4;
@@ -53,22 +53,22 @@ tic;
 toc
 
 %compute ssim
-a1 = 0.9*double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)+ 0.6*double(L1L2_U1<=0.5).*double(L1L2_U2>0.5)+0.3*double(L1L2_U1<=0.5).*double(L1L2_U2<=0.5);
+a1 = 0.9*double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)+ 0.3*double(L1L2_U1<=0.5).*double(L1L2_U2>0.5)+0.6*double(L1L2_U1<=0.5).*double(L1L2_U2<=0.5);
 a1(a1==0)=1;
 
-a2 = 0.9*double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)+ 0.6*double(L1L2_05_U1<=0.5).*double(L1L2_05_U2>0.5)+0.3*double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5);
+a2 = 0.9*double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)+ 0.3*double(L1L2_05_U1<=0.5).*double(L1L2_05_U2>0.5)+0.6*double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5);
 a2(a2==0)=1;
 
-a3 = 0.9*double(ani_U1>0.5).*double(ani_U2>0.5)+0.6*double(ani_U1<=0.5).*double(ani_U2>0.5)+0.3*double(ani_U1<=0.5).*double(ani_U2<=0.5);
+a3 = 0.9*double(ani_U1>0.5).*double(ani_U2<=0.5)+0.3*double(ani_U1<=0.5).*double(ani_U2>0.5)+0.6*double(ani_U1<=0.5).*double(ani_U2<=0.5);
 a3(a3==0)=1;
 
-a4 = 0.9*double(iso_U1>0.5).*double(iso_U2<=0.5)+0.6*double(iso_U1<=0.5).*double(iso_U2>0.5)+0.3*double(iso_U1<=0.5).*double(iso_U2<=0.5);
+a4 = 0.9*double(iso_U1>0.5).*double(iso_U2<=0.5)+0.3*double(iso_U1<=0.5).*double(iso_U2>0.5)+0.6*double(iso_U1<=0.5).*double(iso_U2<=0.5);
 a4(a4==0)=1;
 
-ssim(a1,f)
-ssim(a2,f)
-ssim(a3,f)
-ssim(a4,f)
+ssim(rescale(a1),f)
+ssim(rescale(a2),f)
+ssim(rescale(a3),f)
+ssim(rescale(a4),f)
 
 %plot figure
 figure;

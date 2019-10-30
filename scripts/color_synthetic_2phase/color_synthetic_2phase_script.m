@@ -12,7 +12,6 @@ pm.alpha = 1.0;
 pm.lambda = 1;
 pm.c = 0;
 pm.inner_iter = 300;
-pm.beta = 50;
 pm.tau = 1/8;
 pm.sigma = 1/8;
 pm.method = 'PDHG';

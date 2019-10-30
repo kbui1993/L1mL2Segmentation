@@ -11,16 +11,16 @@ f = double(M);
 fg1 = rescale_color_image(f);
 
 %apply Gaussian blur
-f(:,:,1) = imgaussfilt(f(:,:,1), 0.5);
-f(:,:,2) = imgaussfilt(f(:,:,2), 0.5);
-f(:,:,3) = imgaussfilt(f(:,:,3), 0.5);
+f(:,:,1) = imgaussfilt(f(:,:,1), 3);
+f(:,:,2) = imgaussfilt(f(:,:,2), 3);
+f(:,:,3) = imgaussfilt(f(:,:,3), 3);
 fg = rescale_color_image(f);
 fg = double(fg);
 
 %set parameters
 pm.outer_iter = 20;
 pm.alpha = 1.0;
-pm.lambda =1.0;
+pm.lambda =5.425;
 pm.c = 1e-8;
 pm.inner_iter = 300;
 pm.tau = 1/6;
@@ -75,8 +75,8 @@ L1_L2M = rescale_color_image(L1_L2M);
 L1_0pt5_L2M1=ones(n,n);
 L1_0pt5_L2M3=zeros(n,n);
 L1_0pt5_L2M1(double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)==1 | double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)==1)=0.7;
-L1_0pt5_L2M2 = (double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)==1)*0.1+ (double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5)==1)*0.7;
-L1_0pt5_L2M3(double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)==1 | double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5)==1)=0.1;
+L1_0pt5_L2M2 = (double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)==1)*0.1+ (double(L1L2_05_U1<=0.5).*double(L1L2_05_U2>0.5)==1)*0.7;
+L1_0pt5_L2M3(double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)==1 | double(L1L2_05_U1<=0.5).*double(L1L2_05_U2>0.5)==1)=0.1;
 
 L1_0pt5_L2M = zeros(n,n,3);
 L1_0pt5_L2M(:,:,1)=L1_0pt5_L2M1;
@@ -89,8 +89,8 @@ L1_0pt5_L2M = rescale_color_image(L1_0pt5_L2M);
 L1_M1=ones(n,n);
 L1_M3=zeros(n,n);
 L1_M1(double(ani_U1>0.5).*double(ani_U2>0.5)==1 | double(ani_U1>0.5).*double(ani_U2<=0.5)==1)=0.7;
-L1_M2 = (double(ani_U1>0.5).*double(ani_U2>0.5)==1)*0.1+ (double(ani_U1<=0.5).*double(ani_U2<=0.5)==1)*0.7;
-L1_M3(double(ani_U1>0.5).*double(ani_U2<=0.5)==1 | double(ani_U1<=0.5).*double(ani_U2<=0.5)==1)=0.1;
+L1_M2 = (double(ani_U1>0.5).*double(ani_U2>0.5)==1)*0.1+ (double(ani_U1<=0.5).*double(ani_U2>0.5)==1)*0.7;
+L1_M3(double(ani_U1>0.5).*double(ani_U2<=0.5)==1 | double(ani_U1<=0.5).*double(ani_U2>0.5)==1)=0.1;
 
 L1_M = zeros(n,n,3);
 L1_M(:,:,1)=L1_M1;
@@ -103,8 +103,8 @@ L1_M = rescale_color_image(L1_M);
 iso_M1=ones(n,n);
 iso_M3=zeros(n,n);
 iso_M1(double(iso_U1>0.5).*double(iso_U2>0.5)==1 | double(iso_U1>0.5).*double(iso_U2<=0.5)==1)=0.7;
-iso_M2 = (double(iso_U1>0.5).*double(iso_U2>0.5)==1)*0.1+ (double(iso_U1<=0.5).*double(iso_U2<=0.5)==1)*0.7;
-iso_M3(double(iso_U1>0.5).*double(iso_U2<=0.5)==1 | double(iso_U1<=0.5).*double(iso_U2<=0.5)==1)=0.1;
+iso_M2 = (double(iso_U1>0.5).*double(iso_U2>0.5)==1)*0.1+ (double(iso_U1<=0.5).*double(iso_U2>0.5)==1)*0.7;
+iso_M3(double(iso_U1>0.5).*double(iso_U2<=0.5)==1 | double(iso_U1<=0.5).*double(iso_U2>0.5)==1)=0.1;
 
 iso_M = zeros(n,n,3);
 iso_M(:,:,1)=iso_M1;

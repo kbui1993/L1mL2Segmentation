@@ -1,5 +1,5 @@
-%read starfish image
-fui8 = imread('starfish.jpg');
+%read hawk image
+fui8 = imread('hawk.jpg');
 
 %convert to double
 f = double(fui8);
@@ -14,11 +14,11 @@ fg = rescale_color_image(f);
 %set parameters
 pm.outer_iter = 20;
 pm.alpha = 1.0;
-pm.lambda = 20;
+pm.lambda = 1.5;
 pm.c = 1e-8;
 pm.inner_iter = 300;
-pm.tau = 1/4;
-pm.sigma = 1/4;
+pm.tau = 1/6;
+pm.sigma = 1/6;
 pm.method = 'PDHG';
 
 
@@ -52,7 +52,7 @@ time = toc
 %plot segmentation
 figure;
 subplot(2,3,1); imagesc(fg); axis off; axis square; title('Original');
-subplot(2,3,2); imagesc(fg); hold on; contour(double(L1_L2_u1>0.5), 'k'); axis off; axis square; title('L1-L2');
-subplot(2,3,3); imagesc(fg); hold on; contour(double(L1_0pt5_L2_u1>0.5), 'k'); axis off; axis square; title('L1-0.5L2');
-subplot(2,3,5); imagesc(fg); hold on; contour(double(L1_u1>0.5), 'k'); axis off; axis square; title('Anisotropic');
-subplot(2,3,6); imagesc(fg); hold on; contour(double(iso_u1>0.5), 'k'); axis off; axis square; title('Isotropic');
+subplot(2,3,2); imagesc(fg); hold on; contour(double(L1_L2_u1>0.5), 'g'); axis off; axis square; title('L1-L2');
+subplot(2,3,3); imagesc(fg); hold on; contour(double(L1_0pt5_L2_u1>0.5), 'g'); axis off; axis square; title('L1-0.5L2');
+subplot(2,3,5); imagesc(fg); hold on; contour(double(L1_u1>0.5), 'g'); axis off; axis square; title('Anisotropic');
+subplot(2,3,6); imagesc(fg); hold on; contour(double(iso_u1>0.5), 'g'); axis off; axis square; title('Isotropic');

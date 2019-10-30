@@ -20,7 +20,7 @@ fg = double(fg);
 %set parameters
 pm.outer_iter = 20;
 pm.alpha = 1.0;
-pm.lambda = 1.75;
+pm.lambda = 1.875;
 pm.c = 1e-8;
 pm.inner_iter = 300;
 pm.tau = 1/6;

@@ -71,10 +71,10 @@ a3(a3==0)=1;
 a4 = 0.9*double(iso_U1>0.5).*double(iso_U2<=0.5)+0.6*double(iso_U1<=0.5).*double(iso_U2>0.5)+0.3*double(iso_U1<=0.5).*double(iso_U2<=0.5);
 a4(a4==0)=1;
 
-ssim(a1,f)
-ssim(a2,f)
-ssim(a3,f)
-ssim(a4,f)
+ssim(rescale(a1),f)
+ssim(rescale(a2),f)
+ssim(rescale(a3),f)
+ssim(rescale(a4),f)
 
 %plot figure
 figure;

@@ -10,7 +10,7 @@
 %   u1: segmentation result of u1
 %   u2: segmentation result of u2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [u1,u2] = L1L2_color_four_phase(f,u1_initial, u2_initial, pm)
+function [u1,u2, c1, c2, c3, c4] = L1L2_color_four_phase(f,u1_initial, u2_initial, pm)
 
     %separate the channels of f
     f_r = f(:,:,1);

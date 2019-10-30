@@ -30,7 +30,7 @@ u = double(u);
 %L1-1.0L2
 tic;
 L1_L2_u1 = L1L2_two_phase(fg, u, pm);
-time = toc
+toc
 
 %L1 - 0.5L2
 pm.alpha = 0.5;

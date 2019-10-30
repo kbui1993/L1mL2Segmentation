@@ -54,6 +54,7 @@ toc
 fg1 = rescale_image(f);
 
 %compute ssim
+ssim(fg, fg1)
 ssim(L1_L2_u1, fg1)
 ssim(L1_0pt5_L2_u1, fg1)
 ssim(L1_u1, fg1)

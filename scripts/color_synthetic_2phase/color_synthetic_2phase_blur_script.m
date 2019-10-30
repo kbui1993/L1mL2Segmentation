@@ -11,15 +11,15 @@ foriginal=M;
 [N,M,~] = size(f);
 
 %apply blur to each channel
-f(:,:,1) = imgaussfilt(f(:,:,1), 1);
-f(:,:,2) = imgaussfilt(f(:,:,2), 1);
-f(:,:,3) = add_noise2(f(:,:,3), 1);
+f(:,:,1) = imgaussfilt(f(:,:,1), 2);
+f(:,:,2) = imgaussfilt(f(:,:,2), 2);
+f(:,:,3) = add_noise2(f(:,:,3), 2);
 fg = rescale_color_image(f);
 
 %set parameters
 pm.outer_iter = 20;
 pm.alpha = 1.0;
-pm.lambda = 100;
+pm.lambda = 300;
 pm.c = 1e-8;
 pm.inner_iter = 300;
 pm.tau = 1/8;
