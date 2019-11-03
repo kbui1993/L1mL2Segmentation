@@ -11,7 +11,7 @@
 %   u1: segmentation result of u1
 %   u2: segmentation result of u2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [u1,u2] = isoTV_four_phase(f,u1_initial, u2_initial, pm)
+function [u1,u2,c1,c2,c3,c4] = isoTV_four_phase(f,u1_initial, u2_initial, pm)
     
     %initialize u1 and u2
     u1 = u1_initial;

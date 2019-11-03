@@ -30,7 +30,7 @@ u = double(u);
 
 %L1-1.0L2
 tic;
-L1_L2_u1 = L1L2_two_phase(fg, u, pm);
+[L1_L2_u1, L1_L2_c1, L1_L2_c2] = L1L2_two_phase(fg, u, pm);
 time = toc
 
 %L1 - 0.5L2
@@ -43,7 +43,7 @@ toc
 pm.alpha =0;
 pm.c = 0;
 tic;
-L1_u1 = L1L2_two_phase(fg, u, pm);
+[L1_u1,L1_c1,L1_c2] = L1L2_two_phase(fg, u, pm);
 toc
 
 %isotropic CV

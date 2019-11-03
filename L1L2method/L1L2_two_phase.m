@@ -9,7 +9,7 @@
 %Output:
 %   u: segmentation result
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function u = L1L2_two_phase(f,u_initial, pm)
+function [u,c1,c2] = L1L2_two_phase(f,u_initial, pm)
 
     %set u
     u = u_initial;
