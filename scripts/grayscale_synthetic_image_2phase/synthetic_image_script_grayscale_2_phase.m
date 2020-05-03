@@ -50,11 +50,12 @@ tic;
 iso_u1 = isoTV_two_phase(fg, u, pm);
 toc
 
-%compute ssim
-ssim(L1_L2_u1, fg)
-ssim(L1_0pt5_L2_u1, fg)
-ssim(L1_u1, fg)
-ssim(iso_u1, fg)
+%compute dice
+dice(double(L1_L2_u1>0.5), fg)
+dice(double(L1_0pt5_L2_u1>0.5), fg)
+dice(double(L1_u1>0.5), fg)
+dice(double(iso_u1>0.5), fg)
+
 
 %plot segmentation
 figure;

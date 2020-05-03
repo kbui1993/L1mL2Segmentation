@@ -49,6 +49,7 @@ tic;
 iso_u1 = isoTV_color_two_phase(fg, u, pm);
 time = toc
 
+
 %plot segmentation
 figure;
 subplot(2,3,1); imagesc(fg); axis off; axis square; title('Original');

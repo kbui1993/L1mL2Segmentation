@@ -29,7 +29,7 @@ u2 = double(u2);
 
 %L1-L2
 tic;
-[L1L2_U1,L1L2_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
+[L1L2_U1,L1L2_U2, L1L2_c1, L1L2_c2, L1L2_c3, L1L2_c4] = L1L2_color_four_phase(fg, u1, u2, pm);
 toc
 
 %L1-0.5L2
@@ -112,10 +112,38 @@ iso_M(:,:,3) = iso_M3;
 
 iso_M = rescale_color_image(iso_M);
 
-%compute ssim
-ssim(L1_0pt5_L2M, fg)
-ssim(L1_M, fg)
-ssim(iso_M, fg)
+
+%compute DICE
+%region 1 is circle
+%region 2 is arc
+%region 3 is background
+%region 4 is triangle
+f1 = rgb2gray(fg);
+unique_value = unique(f1);
+f1(f1==unique_value(1)) = 2;
+f1(f1==unique_value(2)) = 3;
+f1(f1==unique_value(3)) = 4;
+
+a1 = rgb2gray(L1_0pt5_L2M);
+a1(a1==unique_value(1)) = 2;
+a1(a1==unique_value(2)) = 3;
+a1(a1==unique_value(3)) = 4;
+
+a2 = rgb2gray(L1_M);
+a2(a2==unique_value(1)) = 2;
+a2(a2==unique_value(2)) = 3;
+a2(a2==unique_value(3)) = 4;
+
+a3 = rgb2gray(iso_M);
+a3(a3==unique_value(1)) = 2;
+a3(a3==unique_value(2)) = 3;
+a3(a3==unique_value(3)) = 4;
+
+
+mean(dice(double(uint8(a1)),double(uint8(f1))))
+mean(dice(double(uint8(a2)),double(uint8(f1))))
+mean(dice(double(uint8(a3)),double(uint8(f1))))
+
 
 %plot figures
 figure;
@@ -139,3 +167,4 @@ subplot(4,5,17); imagesc(double(iso_U1>0.5).*double(iso_U2>0.5)); axis off; axis
 subplot(4,5,18); imagesc(double(iso_U1>0.5).*double(iso_U2<=0.5)); axis off; axis square; title('Phase 2');
 subplot(4,5,19); imagesc(double(iso_U1<=0.5).*double(iso_U2>0.5)); axis off; axis square; title('Phase 3');
 subplot(4,5,20); imagesc(double(iso_U1<=0.5).*double(iso_U2<=0.5)); axis off; axis square; title('Phase 4');
+

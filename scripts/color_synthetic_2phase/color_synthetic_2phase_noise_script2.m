@@ -61,6 +61,7 @@ tic;
 iso_u1 = isoTV_color_two_phase(fg, u, pm);
 time = toc
 
+
 %%reconstruct image from image segmentation
 %L1-L2 reconstruction
 L1_L2M1=zeros(N,M);
@@ -115,16 +116,17 @@ iso_M(:,:,1)=iso_M1;
 iso_M(:,:,2) = iso_M2;
 iso_M(:,:,3) = iso_M3;
 
-%compute ssim
-ssim(L1_L2M, f_color)
-ssim(L1_0pt5_L2M, f_color)
-ssim(L1_M, f_color)
-ssim(iso_M, f_color)
+%compute DICE
+dice(sum(rescale_color_image(L1_L2M),3)/3, sum(fg_original,3)/3)
+dice(sum(rescale_color_image(L1_0pt5_L2M),3)/3, sum(fg_original,3)/3)
+dice(sum(rescale_color_image(L1_M),3)/3, sum(fg_original,3)/3)
+dice(sum(rescale_color_image(iso_M),3)/3, sum(fg_original,3)/3)
 
 %plot segmentation
 figure;
-subplot(2,3,1); imagesc(f_color_noise); axis off; axis square; title('Original');
-subplot(2,3,2); imagesc(f_color_noise); hold on; contour(double(L1_L2_u1>0.5), 'b'); axis off; axis square; title('L1-L2');
-subplot(2,3,3); imagesc(f_color_noise); hold on; contour(double(L1_0pt5_L2_u1>0.5), 'b'); axis off; axis square; title('L1-0.5L2');
-subplot(2,3,5); imagesc(f_color_noise); hold on; contour(double(L1_u1>0.5), 'b'); axis off; axis square; title('Anisotropic');
-subplot(2,3,6); imagesc(f_color_noise); hold on; contour(double(iso_u1>0.5), 'b'); axis off; axis square; title('Isotropic');
+subplot(2,3,1); imagesc(fg); axis off; axis square; title('Original');
+subplot(2,3,2); imagesc(fg); hold on; contour(double(L1_L2_u1>0.5), 'b'); axis off; axis square; title('L1-L2');
+subplot(2,3,3); imagesc(fg); hold on; contour(double(L1_0pt5_L2_u1>0.5), 'b'); axis off; axis square; title('L1-0.5L2');
+subplot(2,3,5); imagesc(fg); hold on; contour(double(L1_u1>0.5), 'b'); axis off; axis square; title('Anisotropic');
+subplot(2,3,6); imagesc(fg); hold on; contour(double(iso_u1>0.5), 'b'); axis off; axis square; title('Isotropic');
+

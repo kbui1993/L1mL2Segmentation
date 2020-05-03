@@ -51,14 +51,14 @@ tic;
 iso_u1 = isoTV_two_phase(fg, u, pm);
 toc
 
+
 fg1 = rescale_image(f);
 
-%compute ssim
-ssim(fg, fg1)
-ssim(L1_L2_u1, fg1)
-ssim(L1_0pt5_L2_u1, fg1)
-ssim(L1_u1, fg1)
-ssim(iso_u1, fg1)
+%compute dice
+dice(double(L1_L2_u1>0.5), fg1)
+dice(double(L1_0pt5_L2_u1>0.5), fg1)
+dice(double(L1_u1>0.5), fg1)
+dice(double(iso_u1>0.5), fg1)
 
 %plot segmentation
 figure;
@@ -67,3 +67,4 @@ subplot(2,3,2); imagesc(fg); hold on; contour(double(L1_L2_u1>0.5), 'g'); axis o
 subplot(2,3,3); imagesc(fg); hold on; contour(double(L1_0pt5_L2_u1>0.5), 'g'); axis off; axis square; title('L1-0.5L2');
 subplot(2,3,5); imagesc(fg); hold on; contour(double(L1_u1>0.5), 'g'); axis off; axis square; title('Anisotropic');
 subplot(2,3,6); imagesc(fg); hold on; contour(double(iso_u1>0.5), 'g'); axis off; axis square; title('Isotropic');
+

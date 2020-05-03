@@ -59,7 +59,7 @@ toc
 iso_approx_im = double(iso_U1>0.5).*double(iso_U2>0.5).*iso_c1 + double(iso_U1>0.5).*double(iso_U2<=0.5).*iso_c2 +...
     double(iso_U1<=0.5).*double(iso_U2>0.5).*iso_c3 + double(iso_U1<=0.5).*double(iso_U2<=0.5).*iso_c4;
 
-%plot figure
+%plot segmentation
 figure;
 subplot(4,6,1); imagesc(fg); axis off; axis square; colormap gray; title('Original');
 subplot(4,6,2); imagesc(double(L1L2_U1>0.5).*double(L1L2_U2>0.5)); axis off; axis square; title('Phase 1');
@@ -85,5 +85,3 @@ subplot(4,6,21); imagesc(double(iso_U1>0.5).*double(iso_U2<=0.5)); axis off; axi
 subplot(4,6,22); imagesc(double(iso_U1<=0.5).*double(iso_U2>0.5)); axis off; axis square; title('Phase 3');
 subplot(4,6,23); imagesc(double(iso_U1<=0.5).*double(iso_U2<=0.5)); axis off; axis square; title('Phase 4');
 subplot(4,6,24); imagesc(iso_approx_im); axis off; axis square; title('Approximation')
-
-

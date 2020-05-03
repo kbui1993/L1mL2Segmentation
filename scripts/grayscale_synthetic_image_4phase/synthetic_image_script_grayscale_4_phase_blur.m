@@ -52,7 +52,8 @@ tic;
 [iso_U1,iso_U2] = isoTV_four_phase(fg, u1, u2, pm);
 toc
 
-%compute ssim
+
+%compute DICE
 a1 = 0.9*double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)+ 0.3*double(L1L2_U1<=0.5).*double(L1L2_U2>0.5)+0.6*double(L1L2_U1<=0.5).*double(L1L2_U2<=0.5);
 a1(a1==0)=1;
 
@@ -65,10 +66,41 @@ a3(a3==0)=1;
 a4 = 0.9*double(iso_U1>0.5).*double(iso_U2<=0.5)+0.3*double(iso_U1<=0.5).*double(iso_U2>0.5)+0.6*double(iso_U1<=0.5).*double(iso_U2<=0.5);
 a4(a4==0)=1;
 
-ssim(rescale(a1),f)
-ssim(rescale(a2),f)
-ssim(rescale(a3),f)
-ssim(rescale(a4),f)
+%region 1 is background
+%region 2 is triangle
+%region 3 is circle
+%region 4 is arc
+
+unique_value = unique(f);
+f1 = f;
+f1(f==unique_value(1)) = 2;
+f1(f==unique_value(2)) = 3;
+f1(f==unique_value(3)) = 4;
+
+a1 = rescale(a1);
+a1(a1==unique_value(1)) = 2;
+a1(a1==unique_value(2)) = 3;
+a1(a1==unique_value(3)) = 4;
+
+a2 = rescale(a2);
+a2(a2==unique_value(1)) = 2;
+a2(a2==unique_value(2)) = 3;
+a2(a2==unique_value(3)) = 4;
+
+a3 = rescale(a3);
+a3(a3==unique_value(1)) = 2;
+a3(a3==unique_value(2)) = 3;
+a3(a3==unique_value(3)) = 4;
+
+a4 = rescale(a4);
+a4(a4==unique_value(1)) = 2;
+a4(a4==unique_value(2)) = 3;
+a4(a4==unique_value(3)) = 4;
+
+mean(dice(double(uint8(a1)),double(uint8(f1))))
+mean(dice(double(uint8(a2)),double(uint8(f1))))
+mean(dice(double(uint8(a3)),double(uint8(f1))))
+mean(dice(double(uint8(a4)),double(uint8(f1))))
 
 %plot figure
 figure;

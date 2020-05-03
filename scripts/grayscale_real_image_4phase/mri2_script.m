@@ -56,6 +56,7 @@ toc
 iso_approx_im = double(iso_U1>0.5).*double(iso_U2>0.5).*iso_c1 + double(iso_U1>0.5).*double(iso_U2<=0.5).*iso_c2 +...
     double(iso_U1<=0.5).*double(iso_U2>0.5).*iso_c3 + double(iso_U1<=0.5).*double(iso_U2<=0.5).*iso_c4;
 
+
 %plot figure
 figure;
 subplot(4,6,1); imagesc(fg); axis off; axis square; colormap gray; title('Original');

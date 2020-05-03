@@ -50,6 +50,7 @@ tic;
 [iso_U1,iso_U2, iso_c1, iso_c2, iso_c3, iso_c4] = isoTV_color_four_phase(fg, u1, u2, pm);
 toc
 
+
 %%construct images
 
 %L1L2
@@ -147,6 +148,7 @@ iso_c4_im(:,:,3) = ones(N,M)*iso_c4(3);
 
 iso_approx_im = double(iso_U1>0.5).*double(iso_U2>0.5).*iso_c1_im + double(iso_U1>0.5).*double(iso_U2<=0.5).*iso_c2_im +...
     double(iso_U1<=0.5).*double(iso_U2>0.5).*iso_c3_im + double(iso_U1<=0.5).*double(iso_U2<=0.5).*iso_c4_im;
+
 
 %plot image
 figure;
