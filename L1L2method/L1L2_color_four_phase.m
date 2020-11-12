@@ -60,13 +60,8 @@ function [u1,u2, c1, c2, c3, c4] = L1L2_color_four_phase(f,u1_initial, u2_initia
             end
             
             %u update
-            if strcmp(pm.method, 'PDHG')
-                u = PDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-            elseif strcmp(pm.method, 'aPDHG')
-                u = aPDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-            else
-                u = Split_Bregman(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.beta);
-            end
+            u = PDHGLS(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.beta);
+            
             if j == 1
                 u1 = u;
             else
@@ -89,17 +84,17 @@ function [u1,u2, c1, c2, c3, c4] = L1L2_color_four_phase(f,u1_initial, u2_initia
         sum(f_b(:).*(1-u1(:)).*(1-u2(:)))./sum((1-u1(:)).*(1-u2(:))+error(:))];
         
         %compute relative errors
-        relerr1 = norm(u1_old - u1)/max([norm(u1_old), norm(u1), eps]);
-        relerr2 = norm(u2_old - u2)/max([norm(u2_old), norm(u2), eps]);
+        relerr1 = norm(u1_old - u1, 'fro')/max([norm(u1_old, 'fro'), norm(u1,'fro'), eps]);
+        relerr2 = norm(u2_old - u2, 'fro')/max([norm(u2_old, 'fro'), norm(u2, 'fro'), eps]);
         
         %stopping condition
-        if relerr1 <5e-3 && relerr2 < 5e-3 && i > 2
-            fprintf('Number of iterations completed: %d \n \n', i);
+        if relerr1 <1e-4 && relerr2 < 1e-4 && i > 2
+            fprintf('Number of DCA inner iterations completed: %d \n \n', i);
             break;
         end
     end
     
     if i == pm.outer_iter
-        fprintf('Number of iterations completed: %d \n \n', i);
+        fprintf('Number of DCA outer iterations completed: %d \n \n', i);
     end
 end

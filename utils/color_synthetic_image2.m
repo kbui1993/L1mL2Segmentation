@@ -6,7 +6,7 @@
 n=100;
 
 %preinitialize image channel
-M1=1+zeros(n,n);
+M1=zeros(n,n);
 M2=zeros(n,n);
 M3=zeros(n,n);
 
@@ -19,15 +19,13 @@ for i=1:n
         
         %create circle
         if sqrt((i-c(1))^2+(j-c(2))^2)<r1 && sqrt((i-c(1))^2+(j-c(2))^2)> r2
-            M1(i,j)=0.7;
-            M2(i,j)=0.1;
+            M1(i,j)=200;
         end
         
         %create weird shape
         if i>55 && i < 85 && j>25 && j <75
             if sqrt((i-c1(1))^2+(j-c1(2))^2) > r3
-                M1(i,j)=0.7;
-                M3(i,j)=0.1;
+                M3(i,j)=255;
             end
         end
     end
@@ -35,8 +33,7 @@ end
 
 %create triangle
 for i=20:51
-    M2(i,i+35:86)=0.7;
-    M3(i,i+35:86)=0.1;
+    M2(i,i+35:86)=70;
 end
 
 %form the color image altogether from the channel image

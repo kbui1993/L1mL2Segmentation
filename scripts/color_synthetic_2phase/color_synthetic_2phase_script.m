@@ -1,0 +1,260 @@
+%%This scripts performs two-phase image segmentation using the AITV models
+%%on a synthetic color image with no impulse noise.
+
+%% read image
+fui8 = imread('shape.png');
+
+f = rgb2gray(fui8);
+
+f = double(f);
+[N,M] = size(f);
+
+%create color version
+f_color = zeros(385,385,3);
+f_color(:,:,1) = double(f>0)*0.5;
+f_color(:,:,2) = double(f>0)*0.9;
+f_color(:,:,3) = double(f>0)*0.25;
+
+fg = double(f_color);
+
+%% CV methods
+%set parameters
+pm.outer_iter = 20;
+pm.alpha = 1.0;
+pm.lambda = 0.5;
+pm.c = 1e-8;
+pm.inner_iter = 300;
+pm.tau = 1/8;
+pm.beta = 1.0;
+
+%preinitialize segmentation
+u = make_circle(M,N,10);
+u = double(u);
+
+%L1-L2
+tic;
+L1_L2_u1 = L1L2_color_two_phase(fg, u, pm);
+time = toc
+
+%L1-0.75L2
+pm.alpha=0.75;
+tic;
+L1_0pt75_L2_u1 = L1L2_color_two_phase(fg, u, pm);
+time = toc
+
+%L1-0.5L2
+pm.alpha =0.5;
+tic;
+L1_0pt5_L2_u1 = L1L2_color_two_phase(fg, u, pm);
+time = toc
+
+%L1-0.25L2
+pm.alpha =0.25;
+tic;
+L1_0pt25_L2_u1 = L1L2_color_two_phase(fg, u, pm);
+time = toc
+
+%anisotropic CV
+pm.alpha = 0;
+pm.c = 0;
+tic;
+L1_u1 = L1L2_color_two_phase(fg, u, pm);
+time = toc
+
+%% fuzzy method
+pm2.outer_iter = 40;
+pm2.alpha = 1.0;
+pm2.lambda = 0.5;
+pm2.c = 1e-8;
+pm2.inner_iter = 300;
+pm2.tau = 1/8;
+pm2.beta = 1.0;
+pm2.nu = 2.5;
+
+u = make_circle(M,N,10);
+u = double(u);
+
+u_initial{1} = u;
+u_initial{2} = ones(M,N)-u;
+
+
+%L1-1.0L2
+tic;
+L1_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 2);
+toc
+
+%L1-0.75L2
+pm2.alpha = 0.75;
+tic;
+L1_0pt75_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 2);
+toc
+
+%L1-0.5L2
+pm2.alpha = 0.5;
+tic;
+L1_0pt5_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 2);
+toc
+
+%L1-0.25L2
+pm2.alpha = 0.25;
+tic;
+L1_0pt25_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 2);
+toc
+
+%L1
+pm2.alpha = 0;
+tic;
+L1_f = fuzzy_color_L1L2(fg, u_initial, pm2, 2);
+toc
+
+%% reconstruct image from image segmentation
+%L1-L2 reconstruction
+L1_L2M1=zeros(N,M);
+L1_L2M2=zeros(N,M);
+L1_L2M3=zeros(N,M);
+L1_L2M1(double(L1_L2_u1>=0.5)==1)=0.5;
+L1_L2M2(double(L1_L2_u1>=0.5)==1)=0.9;
+L1_L2M3(double(L1_L2_u1>=0.5)==1)=0.25;
+
+
+L1_L2M = zeros(N,M,3);
+L1_L2M(:,:,1)=L1_L2M1;
+L1_L2M(:,:,2) = L1_L2M2;
+L1_L2M(:,:,3) = L1_L2M3;
+
+
+%L1-0.75L2 reconstruction
+L1_0pt75_L2M1=zeros(N,M);
+L1_0pt75_L2M2=zeros(N,M);
+L1_0pt75_L2M3=zeros(N,M);
+L1_0pt75_L2M1(double(L1_0pt75_L2_u1>=0.5)==1)=0.5;
+L1_0pt75_L2M2(double(L1_0pt75_L2_u1>=0.5)==1)=0.9;
+L1_0pt75_L2M3(double(L1_0pt75_L2_u1>=0.5)==1)=0.25;
+
+L1_0pt75_L2M = zeros(N,M,3);
+L1_0pt75_L2M(:,:,1)=L1_0pt75_L2M1;
+L1_0pt75_L2M(:,:,2) = L1_0pt75_L2M2;
+L1_0pt75_L2M(:,:,3) = L1_0pt75_L2M3;
+
+%L1-0.5L2 reconstruction
+L1_0pt5_L2M1=zeros(N,M);
+L1_0pt5_L2M2=zeros(N,M);
+L1_0pt5_L2M3=zeros(N,M);
+L1_0pt5_L2M1(double(L1_0pt5_L2_u1>=0.5)==1)=0.5;
+L1_0pt5_L2M2(double(L1_0pt5_L2_u1>=0.5)==1)=0.9;
+L1_0pt5_L2M3(double(L1_0pt5_L2_u1>=0.5)==1)=0.25;
+
+L1_0pt5_L2M = zeros(N,M,3);
+L1_0pt5_L2M(:,:,1)=L1_0pt5_L2M1;
+L1_0pt5_L2M(:,:,2) = L1_0pt5_L2M2;
+L1_0pt5_L2M(:,:,3) = L1_0pt5_L2M3;
+
+%L1-0.25L2 reconstruction
+L1_0pt25_L2M1=zeros(N,M);
+L1_0pt25_L2M2=zeros(N,M);
+L1_0pt25_L2M3=zeros(N,M);
+L1_0pt25_L2M1(double(L1_0pt25_L2_u1>=0.5)==1)=0.5;
+L1_0pt25_L2M2(double(L1_0pt25_L2_u1>=0.5)==1)=0.9;
+L1_0pt25_L2M3(double(L1_0pt25_L2_u1>=0.5)==1)=0.25;
+
+L1_0pt25_L2M = zeros(N,M,3);
+L1_0pt25_L2M(:,:,1)=L1_0pt25_L2M1;
+L1_0pt25_L2M(:,:,2) = L1_0pt25_L2M2;
+L1_0pt25_L2M(:,:,3) = L1_0pt25_L2M3;
+
+%anisotropic reconstruction
+L1_M1=zeros(N,M);
+L1_M2=zeros(N,M);
+L1_M3=zeros(N,M);
+L1_M1(double(L1_u1>=0.5)==1)=0.5;
+L1_M2(double(L1_u1>=0.5)==1)=0.9;
+L1_M3(double(L1_u1>=0.5)==1)=0.25;
+
+L1_M = zeros(N,M,3);
+L1_M(:,:,1)=L1_M1;
+L1_M(:,:,2) = L1_M2;
+L1_M(:,:,3) = L1_M3;
+
+%fuzzy L1-L2 reconstruction
+fuzzy_L1_L2M1=zeros(N,M);
+fuzzy_L1_L2M2=zeros(N,M);
+fuzzy_L1_L2M3=zeros(N,M);
+fuzzy_L1_L2M1(L1_L2_f{1}>L1_L2_f{2})=0.5;
+fuzzy_L1_L2M2(L1_L2_f{1}>L1_L2_f{2})=0.9;
+fuzzy_L1_L2M3(L1_L2_f{1}>L1_L2_f{2})=0.25;
+
+
+fuzzy_L1_L2M = zeros(N,M,3);
+fuzzy_L1_L2M(:,:,1)=fuzzy_L1_L2M1;
+fuzzy_L1_L2M(:,:,2) = fuzzy_L1_L2M2;
+fuzzy_L1_L2M(:,:,3) = fuzzy_L1_L2M3;
+
+%L1-0.75L2 reconstruction
+fuzzy_L1_0pt75_L2M1=zeros(N,M);
+fuzzy_L1_0pt75_L2M2=zeros(N,M);
+fuzzy_L1_0pt75_L2M3=zeros(N,M);
+fuzzy_L1_0pt75_L2M1(L1_0pt75_L2_f{1} > L1_0pt75_L2_f{2})=0.5;
+fuzzy_L1_0pt75_L2M2(L1_0pt75_L2_f{1} > L1_0pt75_L2_f{2})=0.9;
+fuzzy_L1_0pt75_L2M3(L1_0pt75_L2_f{1} > L1_0pt75_L2_f{2})=0.25;
+
+fuzzy_L1_0pt75_L2M = zeros(N,M,3);
+fuzzy_L1_0pt75_L2M(:,:,1)=fuzzy_L1_0pt75_L2M1;
+fuzzy_L1_0pt75_L2M(:,:,2) = fuzzy_L1_0pt75_L2M2;
+fuzzy_L1_0pt75_L2M(:,:,3) = fuzzy_L1_0pt75_L2M3;
+
+%L1-0.5L2 reconstruction
+fuzzy_L1_0pt5_L2M1=zeros(N,M);
+fuzzy_L1_0pt5_L2M2=zeros(N,M);
+fuzzy_L1_0pt5_L2M3=zeros(N,M);
+fuzzy_L1_0pt5_L2M1(L1_0pt5_L2_f{1} > L1_0pt5_L2_f{2})=0.5;
+fuzzy_L1_0pt5_L2M2(L1_0pt5_L2_f{1} > L1_0pt5_L2_f{2})=0.9;
+fuzzy_L1_0pt5_L2M3(L1_0pt5_L2_f{1} > L1_0pt5_L2_f{2})=0.25;
+
+fuzzy_L1_0pt5_L2M = zeros(N,M,3);
+fuzzy_L1_0pt5_L2M(:,:,1)=fuzzy_L1_0pt5_L2M1;
+fuzzy_L1_0pt5_L2M(:,:,2) = fuzzy_L1_0pt5_L2M2;
+fuzzy_L1_0pt5_L2M(:,:,3) = fuzzy_L1_0pt5_L2M3;
+
+%L1-0.25L2 reconstruction
+fuzzy_L1_0pt25_L2M1=zeros(N,M);
+fuzzy_L1_0pt25_L2M2=zeros(N,M);
+fuzzy_L1_0pt25_L2M3=zeros(N,M);
+fuzzy_L1_0pt25_L2M1(L1_0pt25_L2_f{1} > L1_0pt25_L2_f{2})=0.5;
+fuzzy_L1_0pt25_L2M2(L1_0pt25_L2_f{1} > L1_0pt25_L2_f{2})=0.9;
+fuzzy_L1_0pt25_L2M3(L1_0pt25_L2_f{1} > L1_0pt25_L2_f{2})=0.25;
+
+fuzzy_L1_0pt25_L2M = zeros(N,M,3);
+fuzzy_L1_0pt25_L2M(:,:,1)=fuzzy_L1_0pt25_L2M1;
+fuzzy_L1_0pt25_L2M(:,:,2) = fuzzy_L1_0pt25_L2M2;
+fuzzy_L1_0pt25_L2M(:,:,3) = fuzzy_L1_0pt25_L2M3;
+
+%anisotropic reconstruction
+fuzzy_L1_M1=zeros(N,M);
+fuzzy_L1_M2=zeros(N,M);
+fuzzy_L1_M3=zeros(N,M);
+fuzzy_L1_M1(L1_f{1} > L1_f{2})=0.5;
+fuzzy_L1_M2(L1_f{1} > L1_f{2})=0.9;
+fuzzy_L1_M3(L1_f{1} > L1_f{2})=0.25;
+
+fuzzy_L1_M = zeros(N,M,3);
+fuzzy_L1_M(:,:,1)=fuzzy_L1_M1;
+fuzzy_L1_M(:,:,2) = fuzzy_L1_M2;
+fuzzy_L1_M(:,:,3) = fuzzy_L1_M3;
+
+
+
+%% compute DICE
+f = rgb2gray(fg);
+f(f>0)=1;
+
+L1_L2_dice = dice(double(L1_L2_u1>0.5), f)
+L1_0pt75_L2_dice = dice(double(L1_0pt75_L2_u1>0.5), f)
+L1_0pt5_L2_dice = dice(double(L1_0pt5_L2_u1>0.5), f)
+L1_0pt25_L2_dice = dice(double(L1_0pt25_L2_u1>0.5), f)
+L1_dice = dice(double(L1_u1>0.5), f)
+
+fuzzy_L1_L2_dice = dice(double(L1_L2_f{1}>L1_L2_f{2}), f)
+fuzzy_L1_0pt75_L2_dice = dice(double(L1_0pt75_L2_f{1}>L1_0pt75_L2_f{2}), f)
+fuzzy_L1_0pt5_L2_dice = dice(double(L1_0pt5_L2_f{1}>L1_0pt5_L2_f{2}), f)
+fuzzy_L1_0pt25_L2_dice = dice(double(L1_0pt25_L2_f{1}>L1_0pt25_L2_f{2}), f)
+fuzzy_L1_dice = dice(double(L1_f{1}>L1_f{2}), f)

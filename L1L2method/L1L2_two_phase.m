@@ -25,13 +25,8 @@ function [u,c1,c2] = L1L2_two_phase(f,u_initial, pm)
     %run DCA algorithm
     for i = 1:pm.outer_iter
         u_old = u;
-        if strcmp(pm.method, 'PDHG')
-            u = PDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-        elseif strcmp(pm.method, 'aPDHG')
-            u = aPDHG(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.sigma);
-        else
-            u = Split_Bregman(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.beta);
-        end
+
+        u = PDHGLS(u, r, pm.alpha, pm.lambda, pm.c, pm.inner_iter, pm.tau, pm.beta);
         
         %update c1 and c2
         error = 10^(-5)*eye(size(u));
@@ -42,16 +37,16 @@ function [u,c1,c2] = L1L2_two_phase(f,u_initial, pm)
         r = (c1-f).^2- (c2-f).^2;
         
         %compute relative error
-        relerr = norm(u_old - u)/max([norm(u_old), norm(u), eps]);
+        relerr = norm(u_old - u, 'fro')/max([norm(u_old, 'fro'), norm(u, 'fro'), eps]);
         
         %stopping condition
-        if relerr <5e-3 && i > 2
-            fprintf('Number of iterations completed: %d \n \n', i);
+        if relerr <1e-6 && i > 2
+            fprintf('Number of DCA inner iterations completed: %d \n \n', i);
             break;
         end
     end
     
     if i == pm.outer_iter
-        fprintf('Number of iterations completed: %d \n \n', i);
+        fprintf('Number of DCA outer iterations completed: %d \n \n', i);
     end
 end

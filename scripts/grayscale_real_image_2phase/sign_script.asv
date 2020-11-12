@@ -26,6 +26,7 @@ u = make_circle(M,N,10);
 %convert to double
 u = double(u);
 
+
 %L1-1.0L2
 tic;
 [L1_L2_u1, L1_L2_c1, L1_L2_c2] = L1L2_two_phase(fg, u, pm);
@@ -128,7 +129,7 @@ toc
 fuzzy_L1_approx = double(fuzzy_L1_f{1}>fuzzy_L1_f{2}).*fuzzy_L1_c{1}+...
     double(fuzzy_L1_f{1}<fuzzy_L1_f{2}).*fuzzy_L1_c{2};
 
-%% plot segmentation
+%plot segmentation
 figure;
 subplot(2,6,1); imagesc(fg); colormap(gray); axis off; axis square; title('Original');
 subplot(2,6,2); imagesc(fg); hold on; contour(L1_L2_u1>0.5); colormap(gray); axis off; axis square; title('L1-L2 CV');

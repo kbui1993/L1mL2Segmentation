@@ -1,8 +1,7 @@
-%This script runs experiments to compare the proposed four-phase method 
-%against isotropic and anisotropic Chan Vese segmentation on synthetic
-%RGB image with Gaussian noise.
+%%This scripts performs four-phase image segmentation using the AITV models
+%%on a synthetic color image with no impulse noise.
 
-%generate synthetic image
+%% generate synthetic image
 color_synthetic_image2;
 f = double(M);
 [N,M,~] = size(f);
@@ -11,160 +10,164 @@ f = double(M);
 fg = rescale_color_image(f);
 fg = double(fg);
 
+%%CV methods
 %set parameters
-pm.outer_iter = 20;
+pm.outer_iter = 40;
 pm.alpha = 1.0;
-pm.lambda = 1.0;
+pm.lambda = 2.25;
 pm.c = 1e-8;
-pm.inner_iter = 300;
-pm.tau = 1/6;
-pm.sigma = 1/6;
-pm.method = 'PDHG';
+pm.inner_iter = 1000;
+pm.tau = 1/8;
+pm.beta = 1.0;
 
 %set image segmentation initialization
-u1 = make_circle_shift_x(M,N,10, -5);
-u2 = make_circle_shift_x(M,N, 10, 5);
+u1 = make_circle_shift_x(M,N,30, -5);
+u2 = make_circle_shift_x(M,N, 30, 5);
 u1 = double(u1);
 u2 = double(u2);
 
+%%CV method
 %L1-L2
 tic;
 [L1L2_U1,L1L2_U2, L1L2_c1, L1L2_c2, L1L2_c3, L1L2_c4] = L1L2_color_four_phase(fg, u1, u2, pm);
 toc
 
+%L1-0.75L2
+pm.alpha = 0.75;
+tic;
+[L1L2_75_U1,L1L2_75_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
+toc
+
 %L1-0.5L2
 pm.alpha = 0.5;
 tic;
-[L1L2_05_U1,L1L2_05_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
+[L1L2_50_U1,L1L2_50_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
+toc;
+
+%L1-0.25L2
+pm.alpha = 0.25;
+tic;
+[L1L2_25_U1,L1L2_25_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
 toc
 
 %anisotropic
 pm.alpha = 0;
 pm.c = 0;
 tic;
-[ani_U1,ani_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
+[L1_U1,L1_U2] = L1L2_color_four_phase(fg, u1, u2, pm);
 toc
 
-%isotropic
+%% fuzzy method
+%set parameters
+pm2.outer_iter = 160;
+pm2.alpha = 1.0;
+pm2.lambda = 2.25;
+pm2.c = 1e-8;
+pm2.inner_iter = 1000;
+pm2.tau = 1/8;
+pm2.beta = 1.0;
+pm2.nu = 5.0;
+
+u_initial{1} = u1.*u2;
+u_initial{2} = u1.*(1-u2);
+u_initial{3} = (1-u1).*u2;
+u_initial{4} = (1-u1).*(1-u2);
+
+%L1-1.0L2
 tic;
-[iso_U1,iso_U2] = isoTV_color_four_phase(fg, u1, u2, pm);
+L1_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 4);
 toc
 
-%%reconstruct image
-%L1-L2
-L1_L2M1=ones(n,n);
-L1_L2M2=zeros(n,n);
-L1_L2M3=zeros(n,n);
-L1_L2M1(double(L1L2_U1>0.5).*double(L1L2_U2>0.5)==1)=0.7;
-L1_L2M2(double(L1L2_U1>0.5).*double(L1L2_U2>0.5)==1)=0.1;
-
-L1_L2M1(double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)==1)=0.7;
-L1_L2M3(double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)==1)=0.1;
-
-L1_L2M2(double(L1L2_U1<=0.5).*double(L1L2_U2<=0.5)==1)=0.7;
-L1_L2M3(double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)==1)=0.1;
-
-L1_L2M = zeros(n,n,3);
-L1_L2M(:,:,1)=L1_L2M1;
-L1_L2M(:,:,2) = L1_L2M2;
-L1_L2M(:,:,3) = L1_L2M3;
+%L1-0.75L2
+pm2.alpha = 0.75;
+tic;
+L1_0pt75_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 4);
+toc
 
 %L1-0.5L2
-L1_0pt5_L2M1=ones(n,n);
-L1_0pt5_L2M3=zeros(n,n);
-L1_0pt5_L2M1(double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)==1 | double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)==1)=0.7;
-L1_0pt5_L2M2 = (double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)==1)*0.1+ (double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5)==1)*0.7;
-L1_0pt5_L2M3(double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)==1 | double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5)==1)=0.1;
+pm2.alpha = 0.5;
+tic;
+L1_0pt5_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 4);
+toc
 
-L1_0pt5_L2M = zeros(n,n,3);
-L1_0pt5_L2M(:,:,1)=L1_0pt5_L2M1;
-L1_0pt5_L2M(:,:,2) = L1_0pt5_L2M2;
-L1_0pt5_L2M(:,:,3) = L1_0pt5_L2M3;
+%L1-0.25L2
+pm2.alpha = 0.25;
+tic;
+L1_0pt25_L2_f = fuzzy_color_L1L2(fg, u_initial, pm2, 4);
+toc
 
-L1_0pt5_L2M = rescale_color_image(L1_0pt5_L2M);
+%L1
+pm2.alpha = 0;
+tic;
+L1_f = fuzzy_color_L1L2(fg, u_initial, pm2, 4);
+toc
 
+%% create classification image
+fg1 = ones(n,n)+double(fg(:,:,1)==1)+2*double(fg(:,:,2)==1)+3*double(fg(:,:,3)==1);
+fg1 = uint8(fg1);
+fg1 = double(fg1);
 
-%anisotropic
-L1_M1=ones(n,n);
-L1_M3=zeros(n,n);
-L1_M1(double(ani_U1>0.5).*double(ani_U2>0.5)==1 | double(ani_U1>0.5).*double(ani_U2<=0.5)==1)=0.7;
-L1_M2 = (double(ani_U1>0.5).*double(ani_U2>0.5)==1)*0.1+ (double(ani_U1<=0.5).*double(ani_U2<=0.5)==1)*0.7;
-L1_M3(double(ani_U1>0.5).*double(ani_U2<=0.5)==1 | double(ani_U1<=0.5).*double(ani_U2<=0.5)==1)=0.1;
+%L1-L2
+L1_L2_M = ones(n,n)+3*(L1L2_U1.*L1L2_U2)+(L1L2_U1.*(1-L1L2_U2))+2*(1-L1L2_U1).*(L1L2_U2);
+L1_L2_M = uint8(L1_L2_M);
+L1_L2_M = double(L1_L2_M);
 
-L1_M = zeros(n,n,3);
-L1_M(:,:,1)=L1_M1;
-L1_M(:,:,2) = L1_M2;
-L1_M(:,:,3) = L1_M3;
+%L1-0.75L2
+L1_0pt75_L2_M = ones(n,n)+3*(L1L2_75_U1.*L1L2_75_U2)+(L1L2_75_U1.*(1-L1L2_75_U2))+2*(1-L1L2_75_U1).*(L1L2_75_U2);
+L1_0pt75_L2_M = uint8(L1_0pt75_L2_M);
+L1_0pt75_L2_M = double(L1_0pt75_L2_M);
 
-L1_M = rescale_color_image(L1_M);
+%L1-0.5L2
+L1_0pt5_L2_M = ones(n,n)+3*(L1L2_50_U1.*L1L2_50_U2)+(L1L2_50_U1.*(1-L1L2_50_U2))+2*(1-L1L2_50_U1).*(L1L2_50_U2);
+L1_0pt5_L2_M = uint8(L1_0pt5_L2_M);
+L1_0pt5_L2_M = double(L1_0pt5_L2_M);
 
-%isotropic
-iso_M1=ones(n,n);
-iso_M3=zeros(n,n);
-iso_M1(double(iso_U1>0.5).*double(iso_U2>0.5)==1 | double(iso_U1>0.5).*double(iso_U2<=0.5)==1)=0.7;
-iso_M2 = (double(iso_U1>0.5).*double(iso_U2>0.5)==1)*0.1+ (double(iso_U1<=0.5).*double(iso_U2<=0.5)==1)*0.7;
-iso_M3(double(iso_U1>0.5).*double(iso_U2<=0.5)==1 | double(iso_U1<=0.5).*double(iso_U2<=0.5)==1)=0.1;
+%L1-0.25L2
+L1_0pt25_L2_M = ones(n,n)+3*(L1L2_25_U1.*L1L2_25_U2)+(L1L2_25_U1.*(1-L1L2_25_U2))+2*(1-L1L2_25_U1).*(L1L2_25_U2);
+L1_0pt25_L2_M = uint8(L1_0pt25_L2_M);
+L1_0pt25_L2_M = double(L1_0pt25_L2_M);
 
-iso_M = zeros(n,n,3);
-iso_M(:,:,1)=iso_M1;
-iso_M(:,:,2) = iso_M2;
-iso_M(:,:,3) = iso_M3;
+%L1
+L1_M = ones(n,n)+3*(L1_U1.*L1_U2)+(L1_U1.*(1-L1_U2))+2*(1-L1_U1).*(L1_U2);
+L1_M = uint8(L1_M);
+L1_M = double(L1_M);
 
-iso_M = rescale_color_image(iso_M);
+%fuzzy L1-L2
+fuzzy_L1_L2_M = ones(n,n)+3*double((L1_L2_f{1} >= L1_L2_f{2}).*(L1_L2_f{1} >= L1_L2_f{3}).*(L1_L2_f{1} >= L1_L2_f{4}))+...
+    +double((L1_L2_f{2} >= L1_L2_f{1}).*(L1_L2_f{2} >= L1_L2_f{3}).*(L1_L2_f{2} >= L1_L2_f{4}))+...
+    +2*double((L1_L2_f{3} >= L1_L2_f{1}).*(L1_L2_f{3} >= L1_L2_f{2}).*(L1_L2_f{3} >= L1_L2_f{4}));
 
+%fuzzy L1-0.75L2
+fuzzy_L1_0pt75_L2_M = ones(n,n)+3*double((L1_0pt75_L2_f{1} >= L1_0pt75_L2_f{2}).*(L1_0pt75_L2_f{1} >= L1_0pt75_L2_f{3}).*(L1_0pt75_L2_f{1} >= L1_0pt75_L2_f{4}))+...
+    +double((L1_0pt75_L2_f{2} >= L1_0pt75_L2_f{1}).*(L1_0pt75_L2_f{2} >= L1_0pt75_L2_f{3}).*(L1_0pt75_L2_f{2} >= L1_0pt75_L2_f{4}))+...
+    +2*double((L1_0pt75_L2_f{3} >= L1_0pt75_L2_f{1}).*(L1_0pt75_L2_f{3} >= L1_0pt75_L2_f{2}).*(L1_0pt75_L2_f{3} >= L1_0pt75_L2_f{4}));
 
-%compute DICE
-%region 1 is circle
-%region 2 is arc
-%region 3 is background
-%region 4 is triangle
-f1 = rgb2gray(fg);
-unique_value = unique(f1);
-f1(f1==unique_value(1)) = 2;
-f1(f1==unique_value(2)) = 3;
-f1(f1==unique_value(3)) = 4;
+%fuzzy L1-0.5L2
+fuzzy_L1_0pt5_L2_M = ones(n,n)+3*double((L1_0pt5_L2_f{1} >= L1_0pt5_L2_f{2}).*(L1_0pt5_L2_f{1} >= L1_0pt5_L2_f{3}).*(L1_0pt5_L2_f{1} >= L1_0pt5_L2_f{4}))+...
+    +double((L1_0pt5_L2_f{2} >= L1_0pt5_L2_f{1}).*(L1_0pt5_L2_f{2} >= L1_0pt5_L2_f{3}).*(L1_0pt5_L2_f{2} >= L1_0pt5_L2_f{4}))+...
+    +2*double((L1_0pt5_L2_f{3} >= L1_0pt5_L2_f{1}).*(L1_0pt5_L2_f{3} >= L1_0pt5_L2_f{2}).*(L1_0pt5_L2_f{3} >= L1_0pt5_L2_f{4}));
 
-a1 = rgb2gray(L1_0pt5_L2M);
-a1(a1==unique_value(1)) = 2;
-a1(a1==unique_value(2)) = 3;
-a1(a1==unique_value(3)) = 4;
+%fuzzy L1-0.25L2
+fuzzy_L1_0pt25_L2_M = ones(n,n)+3*double((L1_0pt25_L2_f{1} >= L1_0pt25_L2_f{2}).*(L1_0pt25_L2_f{1} >= L1_0pt25_L2_f{3}).*(L1_0pt25_L2_f{1} >= L1_0pt25_L2_f{4}))+...
+    +double((L1_0pt25_L2_f{2} >= L1_0pt25_L2_f{1}).*(L1_0pt25_L2_f{2} >= L1_0pt25_L2_f{3}).*(L1_0pt25_L2_f{2} >= L1_0pt25_L2_f{4}))+...
+    +2*double((L1_0pt25_L2_f{3} >= L1_0pt25_L2_f{1}).*(L1_0pt25_L2_f{3} >= L1_0pt25_L2_f{2}).*(L1_0pt25_L2_f{3} >= L1_0pt25_L2_f{4}));
 
-a2 = rgb2gray(L1_M);
-a2(a2==unique_value(1)) = 2;
-a2(a2==unique_value(2)) = 3;
-a2(a2==unique_value(3)) = 4;
-
-a3 = rgb2gray(iso_M);
-a3(a3==unique_value(1)) = 2;
-a3(a3==unique_value(2)) = 3;
-a3(a3==unique_value(3)) = 4;
-
-
-mean(dice(double(uint8(a1)),double(uint8(f1))))
-mean(dice(double(uint8(a2)),double(uint8(f1))))
-mean(dice(double(uint8(a3)),double(uint8(f1))))
+%fuzzy L1
+fuzzy_L1_M = ones(n,n)+3*double((L1_f{1} >= L1_f{2}).*(L1_f{1} >= L1_f{3}).*(L1_f{1} >= L1_f{4}))+...
+    +double((L1_f{2} >= L1_f{1}).*(L1_f{2} >= L1_f{3}).*(L1_f{2} >= L1_f{4}))+...
+    +2*double((L1_f{3} >= L1_f{1}).*(L1_f{3} >= L1_f{2}).*(L1_f{3} >= L1_f{4}));
 
 
-%plot figures
-figure;
-subplot(4,5,1); imagesc(fg); axis off; axis square; colormap gray; title('Original');
-subplot(4,5,2); imagesc(double(L1L2_U1>0.5).*double(L1L2_U2>0.5)); axis off; axis square; title('Phase 1');
-subplot(4,5,3); imagesc(double(L1L2_U1>0.5).*double(L1L2_U2<=0.5)); axis off; axis square; title('Phase 2');
-subplot(4,5,4); imagesc(double(L1L2_U1<=0.5).*double(L1L2_U2>0.5)); axis off; axis square; title('Phase 3');
-subplot(4,5,5); imagesc(double(L1L2_U1<=0.5).*double(L1L2_U2<=0.5)); axis off; axis square; title('Phase 4');
+%% compute DICE
+mean(dice(L1_L2_M, fg1))
+mean(dice(L1_0pt75_L2_M, fg1))
+mean(dice(L1_0pt5_L2_M, fg1))
+mean(dice(L1_0pt25_L2_M, fg1))
+mean(dice(L1_M, fg1))
+mean(dice(fuzzy_L1_L2_M, fg1))
+mean(dice(fuzzy_L1_0pt75_L2_M, fg1))
+mean(dice(fuzzy_L1_0pt5_L2_M, fg1))
+mean(dice(fuzzy_L1_0pt25_L2_M, fg1))
+mean(dice(fuzzy_L1_M, fg1))
 
-subplot(4,5,7); imagesc(double(L1L2_05_U1>0.5).*double(L1L2_05_U2>0.5)); axis off; axis square; title('Phase 1');
-subplot(4,5,8); imagesc(double(L1L2_05_U1>0.5).*double(L1L2_05_U2<=0.5)); axis off; axis square; title('Phase 2');
-subplot(4,5,9); imagesc(double(L1L2_05_U1<=0.5).*double(L1L2_05_U2>0.5)); axis off; axis square; title('Phase 3');
-subplot(4,5,10); imagesc(double(L1L2_05_U1<=0.5).*double(L1L2_05_U2<=0.5)); axis off; axis square; title('Phase 4');
-
-subplot(4,5,12); imagesc(double(ani_U1>0.5).*double(ani_U2>0.5)); axis off; axis square; title('Phase 1');
-subplot(4,5,13); imagesc(double(ani_U1>0.5).*double(ani_U2<=0.5)); axis off; axis square; title('Phase 2');
-subplot(4,5,14); imagesc(double(ani_U1<=0.5).*double(ani_U2>0.5)); axis off; axis square; title('Phase 3');
-subplot(4,5,15); imagesc(double(ani_U1<=0.5).*double(ani_U2<=0.5)); axis off; axis square; title('Phase 4');
-
-subplot(4,5,17); imagesc(double(iso_U1>0.5).*double(iso_U2>0.5)); axis off; axis square; title('Phase 1');
-subplot(4,5,18); imagesc(double(iso_U1>0.5).*double(iso_U2<=0.5)); axis off; axis square; title('Phase 2');
-subplot(4,5,19); imagesc(double(iso_U1<=0.5).*double(iso_U2>0.5)); axis off; axis square; title('Phase 3');
-subplot(4,5,20); imagesc(double(iso_U1<=0.5).*double(iso_U2<=0.5)); axis off; axis square; title('Phase 4');
 
